@@ -1,18 +1,16 @@
 import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
   Avatar,
   Box,
-  Button,
   Chip,
   CssBaseline,
   List,
   ListItem,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material'
 import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles'
-import { FC, ReactNode, useContext } from 'react'
+import { FC, useContext } from 'react'
 import { appContext, AppProvider } from './AppProvider'
 import { useTracks } from './selectors'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -21,19 +19,30 @@ const queryClient = new QueryClient()
 const AppList = () => {
   const tracks = useTracks()
   return (
-    <List>
+    <List dense>
       {tracks.map((t, idx) => (
         <ListItem style={{ textAlign: 'start' }} key={idx}>
-          <Box>{t.name}</Box>
+          <Stack fontSize={'.8rem'} direction="column">
+            <Typography variant="body2">{t.name}</Typography>
+            <Typography fontSize={'.6rem'} variant="caption" sx={{color: '#b3b3b3'}} color="text.secondary">{t.artists.map(({name}) => name).join(',')}</Typography>
+          </Stack>
           <Box margin="auto" />
           <Box>
-            {t.labels.map((i: any) => (
-              <Chip
-                avatar={<Avatar src={i.images[0].url} />}
-                label={i.name}
-                sx={{ margin: '5px', padding:'5px' }}
-              />
-            ))}
+            {t.labels
+              .filter(l => !!l)
+              .map((i: any) => {
+                return (
+                  <Chip
+                    avatar={
+                      <Avatar variant="square" src={i.images?.[0]?.url} />
+                    }
+                    variant="outlined"
+                    label={i.name}
+                    size="small"
+                    sx={{ margin: '5px', padding: '5px' }}
+                  />
+                )
+              })}
           </Box>
         </ListItem>
       ))}
@@ -41,26 +50,38 @@ const AppList = () => {
   )
 }
 const AppHeader = () => {
-  const { labels } = useContext(appContext)
+  const { search, setSearch } = useContext(appContext)
   return (
-    <Autocomplete
-      multiple
-      open
-      renderInput={params => (
-        <TextField
-          {...params}
-          variant="standard"
-          label="Multiple values"
-          placeholder="Favorites"
-        />
-      )}
-      options={labels.map(l => ({...l, label: l.name}))}
-      renderOption={(props, t) => {
-        console.log(props)
-        return <Chip avatar={<Avatar  src={t.images[0].url}/>} label={t.name} sx={{marginRight:'10px'}} />}}
-    />
+    <Box width="100%" textAlign="center">
+      <TextField
+        sx={{ width: '80%', margin: 'auto' }}
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
+    </Box>
   )
 }
+// const AppHeader = () => {
+//   const { labels } = useContext(appContext)
+//   return (
+//     <Autocomplete
+//       multiple
+//       open
+//       renderInput={params => (
+//         <TextField
+//           {...params}
+//           variant="standard"
+//           label="Multiple values"
+//           placeholder="Favorites"
+//         />
+//       )}
+//       options={labels.map(l => ({...l, label: l.name}))}
+//       renderOption={(props, t) => {
+//         console.log(props)
+//         return <Chip avatar={<Avatar  src={t.images[0].url}/>} label={t.name} sx={{marginRight:'10px'}} />}}
+//     />
+//   )
+// }
 const App: FC = () => {
   return (
     <>

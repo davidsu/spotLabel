@@ -45,13 +45,13 @@ async function generateCodeChallenge(codeVerifier: string) {
   return base64encode(digest)
 }
 
-const clientId = '08bb5e52ec0d4e6aaf8c45655cc8bdc4'
+const clientId = 'a8072301988e40ee9439837c265631fd'
 const home = 'http://localhost:5173'
 const redirectUri = 'http://localhost:5173/accept'
 
 let codeVerifier = generateRandomString(128)
 export function getAuthorizationCode() {
-  generateCodeChallenge(codeVerifier).then((codeChallenge) => {
+  generateCodeChallenge(codeVerifier).then(codeChallenge => {
     let state = generateRandomString(16)
     let scope = SCOPE
 
@@ -93,18 +93,18 @@ export function getToken() {
     },
     body: body,
   })
-    .then((response) => {
+    .then(response => {
       if (!response.ok) {
         throw new Error('HTTP status ' + response.status)
       }
       return response.json()
     })
-    .then((data) => {
+    .then(data => {
       localStorage.setItem('access-token', data.access_token)
       //@ts-ignore
       window.location = home
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Error:', error)
     })
   return response

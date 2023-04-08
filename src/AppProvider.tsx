@@ -1,7 +1,16 @@
-import { createContext, FC, ReactElement, ReactNode, useEffect, useState } from 'react'
+import {
+  createContext,
+  FC,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { getAuthorizationCode, getToken } from './tokenFlow'
 import './api'
-import { getPlaylists, getTrackForPlaylists, getTracks } from './api'
+import { getPlaylists, getTrackForPlaylists, getTracks, getUser } from './api'
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 
 const PLITEMS = 'playlistItems'
@@ -11,14 +20,20 @@ type Context = {
   token: string | null
   tracks: any[]
   labels: any[]
+  user: any
   playlistItems: Record<string, any>
+  setSearch: React.Dispatch<React.SetStateAction<string>>
+  search: string
 }
 
 const initialState = {
   token: '',
+  user: {},
   labels: JSON.parse(localStorage.getItem(LABELS) || '[]'),
   tracks: JSON.parse(localStorage.getItem(TRACKS) || '[]'),
   playlistItems: JSON.parse(localStorage.getItem(PLITEMS) || '{}'),
+  search: '',
+  setSearch: () => {},
 }
 export const appContext = createContext<Context>(initialState)
 const useWhaat = () =>
@@ -57,53 +72,57 @@ const useFetchTracks = (
     }
   }, [token, setTracks])
 
+const useGetUser = () => {
+  const { data } = useQuery('user', () => getUser())
+  return data
+}
+
 const usePlaylistItems = (
   labels: any[],
-  playlistItems: Record<string, any>,
-  setPlaylistItems: React.Dispatch<React.SetStateAction<Record<string, any>>>
 ) => {
-  const { isLoading, error, data } = useQuery(PLITEMS, () => 
-    getTrackForPlaylists(labels).then((items: Record<string, any>) => {
-      setPlaylistItems(items)
-      const mapped = Object.entries(items).reduce(
-        (acc, [id, { labels, name }]) => ({
-          ...acc,
-          [id]: { labels, name },
-        }),
-        {}
-      )
-
-      localStorage.setItem(PLITEMS, JSON.stringify(mapped))
-      // for(const [key,val] of Object.entries(items))
-      //   localStorage.setItem(key, JSON.stringify(val))
-    }))
-  return data || playlistItems
+  const { isLoading, error, data } = useQuery(PLITEMS, () => {
+    getTrackForPlaylists(labels)
+      .then((items: Record<string, any>) => {
+        const mapped = Object.entries(items).reduce(
+          (acc, [id, { labels, name }]) => ({
+            ...acc,
+            [id]: { labels, name },
+          }),
+          {}
+        )
+        localStorage.setItem(PLITEMS, JSON.stringify(mapped))
+        return items
+      })
+      .catch(e => {
+        console.log(e)
+      })
+  }, {cacheTime:9999, refetchOnWindowFocus: false} )
+  return data 
 }
 
 export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   useWhaat()
   const [labels, setLabels] = useState<any[]>(initialState.labels)
   const [tracks, setTracks] = useState<any[]>(initialState.tracks)
-  const [playlistItems, setPlaylistItems] = useState<Record<string, any>>(
-    initialState.playlistItems
-  )
+  const [search, setSearch] = useState('')
+  const user = useGetUser()
   const token = localStorage.getItem('access-token')
   usePlaylists(token, setLabels)
   useFetchTracks(token, setTracks)
-  usePlaylistItems(labels, playlistItems, setPlaylistItems)
+  const playlistItems = usePlaylistItems(labels) || initialState.playlistItems
 
-  const state = (window.state = { tracks, labels, playlistItems })
-  console.log(state)
-  return (
-    <appContext.Provider
-      value={{
-        playlistItems,
-        tracks,
-        labels,
-        token: localStorage.getItem('access-token'),
-      }}
-    >
-      {children}
-    </appContext.Provider>
+  const state = useMemo(
+    () => ({
+      user,
+      search,
+      setSearch,
+      playlistItems,
+      tracks,
+      labels,
+      token: localStorage.getItem('access-token'),
+    }),
+    [user, search, setSearch, playlistItems, tracks, labels]
   )
+  console.log(state)
+  return <appContext.Provider value={state}>{children}</appContext.Provider>
 }
