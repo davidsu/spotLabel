@@ -45,7 +45,8 @@ async function generateCodeChallenge(codeVerifier: string) {
   return base64encode(digest)
 }
 
-const clientId = 'a8072301988e40ee9439837c265631fd'
+//const clientId = 'a8072301988e40ee9439837c265631fd'
+const clientId = '08bb5e52ec0d4e6aaf8c45655cc8bdc4'
 const home = 'http://localhost:5173'
 const redirectUri = 'http://localhost:5173/accept'
 

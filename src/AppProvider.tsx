@@ -10,8 +10,9 @@ import {
 } from 'react'
 import { getAuthorizationCode, getToken } from './tokenFlow'
 import './api'
+import {setValue} from './cache'
 import { getPlaylists, getTrackForPlaylists, getTracks, getUser } from './api'
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 
 const PLITEMS = 'playlistItems'
 const LABELS = 'labels'
@@ -29,9 +30,9 @@ type Context = {
 const initialState = {
   token: '',
   user: {},
-  labels: JSON.parse(localStorage.getItem(LABELS) || '[]'),
-  tracks: JSON.parse(localStorage.getItem(TRACKS) || '[]'),
-  playlistItems: JSON.parse(localStorage.getItem(PLITEMS) || '{}'),
+  labels: [],
+  tracks: [],
+  playlistItems: {},
   search: '',
   setSearch: () => {},
 }
@@ -55,6 +56,7 @@ const usePlaylists = (
       getPlaylists().then((items: any[]) => {
         setLabels(items)
         localStorage.setItem(LABELS, JSON.stringify(items))
+        setValue(LABELS, items)
       })
     }
   }, [token, setLabels])
@@ -68,6 +70,7 @@ const useFetchTracks = (
       getTracks().then((items: any[]) => {
         setTracks(items)
         localStorage.setItem(TRACKS, JSON.stringify(items))
+        setValue(TRACKS, items)
       })
     }
   }, [token, setTracks])
@@ -77,27 +80,29 @@ const useGetUser = () => {
   return data
 }
 
-const usePlaylistItems = (
-  labels: any[],
-) => {
-  const { isLoading, error, data } = useQuery(PLITEMS, () => {
-    getTrackForPlaylists(labels)
-      .then((items: Record<string, any>) => {
-        const mapped = Object.entries(items).reduce(
-          (acc, [id, { labels, name }]) => ({
-            ...acc,
-            [id]: { labels, name },
-          }),
-          {}
-        )
-        localStorage.setItem(PLITEMS, JSON.stringify(mapped))
-        return items
-      })
-      .catch(e => {
-        console.log(e)
-      })
-  }, {cacheTime:9999, refetchOnWindowFocus: false} )
-  return data 
+const usePlaylistItems = (labels: any[]) => {
+  console.log({labels})
+  const { data } = useQuery(
+    PLITEMS+labels.length,
+    () =>
+      getTrackForPlaylists(labels)
+        .then((items: Record<string, any>) => {
+          const mapped = Object.entries(items).reduce(
+            (acc, [id, { labels, name }]) => ({
+              ...acc,
+              [id]: { labels, name },
+            }),
+            {}
+          )
+          setValue(PLITEMS, mapped)
+          return mapped
+        })
+        .catch(e => {
+          console.log(e)
+        }),
+    { cacheTime: 9999, refetchOnWindowFocus: false }
+  )
+  return data
 }
 
 export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {

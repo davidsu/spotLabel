@@ -1,6 +1,4 @@
-import { useContext } from 'react'
-import { appContext } from './AppProvider'
-
+import { setValue, getValue } from './cache'
 const BASE_URL = 'https://api.spotify.com/v1'
 const headers = () => ({
   headers: {
@@ -10,8 +8,31 @@ const headers = () => ({
 
 const apiFetch = (url: string) => fetch(url, headers())
 
+let cachehit = 0
+const fetchWithCache = async (
+  url: string,
+  useCache = true
+): Promise<Pick<Response, 'ok' | 'json' | 'status'>> => {
+  const cached = await getValue(url)
+  if (useCache && cached) {
+    console.log('cache hit: ', ++cachehit)
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(cached),
+    })
+  }
+  const response = await apiFetch(url)
+  if (!response.ok) {
+    return Promise.reject(response)
+  }
+  const result = await response.json()
+  setValue(url, result)
+  return { ...result, json: () => Promise.resolve(result) }
+}
+
 const getTracksForPlaylist = (pl: any) =>
-  apiFetch(`${BASE_URL}/playlists/${pl.id}/tracks`).then(e => {
+  fetchWithCache(`${BASE_URL}/playlists/${pl.id}/tracks`).then(e => {
     if (e.status === 429) {
       return new Promise(r =>
         setTimeout(() => r(getTracksForPlaylist(pl)), 2000)
@@ -43,9 +64,8 @@ export const getTrackForPlaylists = async (playlists: any[]) => {
 }
 //@ts-ignore
 export const getPlaylists = async (offset = 0) => {
-  const result = await fetch(
-    `${BASE_URL}/me/playlists?limit=50&offset=${offset}`,
-    headers()
+  const result = await fetchWithCache(
+    `${BASE_URL}/me/playlists?limit=50&offset=${offset}`
   )
   if (!result.ok) {
     localStorage.removeItem('access-token')
@@ -62,9 +82,8 @@ export const getPlaylists = async (offset = 0) => {
 
 //@ts-ignore
 export const getTracks = async (offset = 0) => {
-  const result = await fetch(
-    `${BASE_URL}/me/tracks?limit=50&offset=${offset}`,
-    headers()
+  const result = await fetchWithCache(
+    `${BASE_URL}/me/tracks?limit=50&offset=${offset}`
   )
   const json = await result.json()
   if (json.items.length === 50) {
