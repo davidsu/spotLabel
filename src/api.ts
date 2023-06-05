@@ -28,7 +28,7 @@ const fetchWithCache = async (
   }
   const result = await response.json()
   setValue(url, result)
-  return { ...result, json: () => Promise.resolve(result) }
+  return { ...result, json: () => Promise.resolve(result), ok: true }
 }
 
 const getTracksForPlaylist = (pl: any) =>

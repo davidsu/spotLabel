@@ -12,4 +12,8 @@ export const setValue = (key: string, value: Record<string, any>) =>
 
 export const getValue = (key: string) => dbP.then(db => db.get('cache', key))
 
-Object.assign(window, { getValue, setValue })
+Object.assign(window, {
+  getValue,
+  setValue,
+  clearCache: () => deleteDB(STORE_NAME),
+})

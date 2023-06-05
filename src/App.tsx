@@ -9,7 +9,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles'
+import {
+  createTheme,
+  ThemeOptions,
+  ThemeProvider,
+  useTheme,
+} from '@mui/material/styles'
 import { FC, useContext } from 'react'
 import { appContext, AppProvider } from './AppProvider'
 import { useTracks } from './selectors'
@@ -18,13 +23,33 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 const queryClient = new QueryClient()
 const AppList = () => {
   const tracks = useTracks()
+  const theme = useTheme()
+  console.log({ theme })
   return (
     <List dense>
       {tracks.map((t, idx) => (
-        <ListItem style={{ textAlign: 'start' }} key={idx}>
+        <ListItem
+          style={{
+            marginBottom: '16px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            width: '95%',
+            borderRadius: '10px',
+            textAlign: 'start',
+            background: '#292727',
+          }}
+          key={idx}
+        >
           <Stack fontSize={'.8rem'} direction="column">
             <Typography variant="body2">{t.name}</Typography>
-            <Typography fontSize={'.6rem'} variant="caption" sx={{color: '#b3b3b3'}} color="text.secondary">{t.artists.map(({name}) => name).join(',')}</Typography>
+            <Typography
+              fontSize={'.6rem'}
+              variant="caption"
+              sx={{ color: '#b3b3b3' }}
+              color="text.secondary"
+            >
+              {t.artists.map(({ name }) => name).join(',')}
+            </Typography>
           </Stack>
           <Box margin="auto" />
           <Box>
