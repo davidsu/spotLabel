@@ -1,4 +1,5 @@
 git checkout deployment &&
+git reset main --hard &&
 yarn tsc &&
 yarn vite build &&
 sed -i.bak 's/assets/spotLabel\/assets/' ./dist/index.html &&
