@@ -24,7 +24,6 @@ function Bootstrap() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <h1>boo</h1>
         <AppProvider>
           <Likes />
         </AppProvider>

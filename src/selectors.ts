@@ -12,17 +12,19 @@ const applySearch = (tracks: any[], playlistItems, search) => {
       )
   )
 }
+const filterEnergy = (track, energy) =>
+  track.audioFeatures?.energy >= energy[0] / 100 &&
+  track.audioFeatures?.energy <= energy[1] / 100
+
+const filterValence = (track, valence) =>
+  track.audioFeatures?.valence >= valence[0] / 100 &&
+  track.audioFeatures?.valence <= valence[1] / 100
+
 const applyAudioFeatureFilters = (tracks, audioFeaturesFilters) => {
-  const { energy } = audioFeaturesFilters
-  if (!energy) {
-    return tracks
-  }
-  const result = tracks.filter(
-    t =>
-      t.audioFeatures?.energy >= energy[0] / 100 &&
-      t.audioFeatures?.energy <= energy[1] / 100
-  )
-  debugger
+  const { energy, valence } = audioFeaturesFilters
+  const result = tracks
+    .filter(track => !energy || filterEnergy(track, energy))
+    .filter(track => !valence || filterValence(track, valence))
   return result
 }
 

@@ -9,13 +9,16 @@ export const LikesList = () => {
       {tracks.map(t => (
         <ListItem
           style={{
-            marginBottom: '16px',
+            marginBottom: '4px',
             marginLeft: 'auto',
             marginRight: 'auto',
+            paddingTop: '4px',
+            paddingBottom: '4px',
             width: '95%',
             borderRadius: '10px',
             textAlign: 'start',
-            background: '#292727',
+            background: '#0e0e0e',
+            border: '1px solid #171717'
           }}
           key={t.id}
         >

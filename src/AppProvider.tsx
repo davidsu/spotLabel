@@ -20,6 +20,7 @@ const LABELS = 'labels'
 const TRACKS = 'tracks'
 type AudioFeaturesFilters = {
   energy?: [number, number]
+  valence?: [number, number]
 }
 type Context = {
   token: string | null
