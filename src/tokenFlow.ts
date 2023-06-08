@@ -46,7 +46,9 @@ async function generateCodeChallenge(codeVerifier: string) {
 }
 
 //const clientId = 'a8072301988e40ee9439837c265631fd'
-const clientId = '08bb5e52ec0d4e6aaf8c45655cc8bdc4'
+const clientId = import.meta.env.PROD
+  ? '08bb5e52ec0d4e6aaf8c45655cc8bdc4'
+  : 'a8072301988e40ee9439837c265631fd'
 const home = window.location.origin
 const redirectUri = `${home}/accept`
 

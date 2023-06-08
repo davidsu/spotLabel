@@ -90,6 +90,7 @@ const getGenres = async () => {
   return genres
 }
 
+//@ts-ignore
 window.getGenres = getGenres
 
 export const getUser = () =>

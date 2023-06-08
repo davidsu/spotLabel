@@ -8,6 +8,7 @@ export const getTracksAudioFeatures = async (trackIds: string[]) => {
   const json = await result.json()
   return json
 }
+//@ts-ignore
 window.getTrack = getTracksAudioFeatures
 
 const toExtendedTracks = async (tracks: any[]) => {

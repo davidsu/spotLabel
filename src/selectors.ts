@@ -34,6 +34,7 @@ export const useTracks = () => {
     const result = _(tracks)
       .thru(t => applySearch(t, playlistItems, search))
       .thru(t => applyAudioFeatureFilters(t, audioFeaturesFilters))
+      //@ts-ignore
       .map(t => {
         return {
           ...t,
