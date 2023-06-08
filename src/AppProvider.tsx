@@ -57,10 +57,8 @@ const useWhaat = (setToken: React.Dispatch<React.SetStateAction<string>>) =>
   useEffect(() => {
     if (!firstLoad) return
     firstLoad = false
-    // if (localStorage.getItem('access-token')) return
-    if (localStorage.getItem('refresh-token')) {
-      refreshToken().then(({ access_token }) => setToken(access_token))
-    } else if (/accept/.test(window.location.pathname)) {
+    if (localStorage.getItem('access-token')) return
+    if (/accept/.test(window.location.pathname)) {
       getToken()
     } else {
       getAuthorizationCode()
@@ -127,7 +125,7 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [labels, setLabels] = useState<any[]>(initialState.labels)
   const [tracks, setTracks] = useState<any[]>(initialState.tracks)
   const [search, setSearch] = useState('')
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState(localStorage.getItem('access-token'))
   const [isDrawerEnabled, enableDrawer] = useState(true)
   const [audioFeaturesFilters, setAudioFeatureFilters] =
     useState<AudioFeaturesFilters>({})
@@ -149,7 +147,7 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
       setSearch,
       tracks,
       user,
-      token: localStorage.getItem('access-token'),
+      token,
     }),
     [
       audioFeaturesFilters,
@@ -161,6 +159,7 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
       setAudioFeatureFilters,
       setSearch,
       tracks,
+      token,
       user,
     ]
   )

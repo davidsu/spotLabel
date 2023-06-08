@@ -105,7 +105,9 @@ export function refreshToken() {
       return data
     })
     .catch(error => {
-      console.error('Error:', error)
+      localStorage.clear()
+      //@ts-ignore
+      window.location = home
     })
   return response
   // return code
