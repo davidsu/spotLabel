@@ -1,32 +1,47 @@
 import { useContext, useEffect, useState } from 'react'
 import { appContext } from './AppProvider'
+import _ from 'lodash'
+
+const applySearch = (tracks: any[], playlistItems, search) => {
+  const testRegex = new RegExp(search, 'i')
+  return tracks.filter(
+    t =>
+      testRegex.test(t.name) ||
+      (playlistItems[t.id]?.labels || []).some((label: any) =>
+        testRegex.test(label.name)
+      )
+  )
+}
+const applyAudioFeatureFilters = (tracks, audioFeaturesFilters) => {
+  const { energy } = audioFeaturesFilters
+  if (!energy) {
+    return tracks
+  }
+  const result = tracks.filter(
+    t =>
+      t.audioFeatures?.energy >= energy[0] / 100 &&
+      t.audioFeatures?.energy <= energy[1] / 100
+  )
+  debugger
+  return result
+}
 
 export const useTracks = () => {
-  const { tracks, playlistItems, search } = useContext(appContext)
+  const { tracks, playlistItems, search, audioFeaturesFilters } =
+    useContext(appContext)
   const [enriched, setEnriched] = useState<any[]>([])
   useEffect(() => {
-    // const unvisited = new Set(Object.keys(playlistItems))
-    const testRegex = new RegExp(search, 'i')
-    const result = tracks
-      .filter(
-        t =>
-          testRegex.test(t.name) ||
-          (playlistItems[t.id]?.labels || []).some((label: any) =>
-            testRegex.test(label.name)
-          )
-      )
+    const result = _(tracks)
+      .thru(t => applySearch(t, playlistItems, search))
+      .thru(t => applyAudioFeatureFilters(t, audioFeaturesFilters))
       .map(t => {
-        // unvisited.delete(t.id)
         return {
           ...t,
           labels: playlistItems[t.id]?.labels || [],
         }
       })
-    // for (const id of unvisited) {
-    //   debugger
-    //   result.push(playlistItems[id])
-    // }
+      .value()
     setEnriched(result)
-  }, [tracks, playlistItems, setEnriched, search])
+  }, [tracks, playlistItems, setEnriched, search, audioFeaturesFilters])
   return enriched
 }

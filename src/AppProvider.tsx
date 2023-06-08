@@ -8,15 +8,19 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { getAuthorizationCode, getToken } from './tokenFlow'
+import { getAuthorizationCode, getToken, refreshToken } from './tokenFlow'
 import './api'
-import {setValue} from './cache'
-import { getPlaylists, getTrackForPlaylists, getTracks, getUser } from './api'
+import { setValue } from './cache'
+import { getPlaylists, getTrackForPlaylists, getUser } from './api'
 import { useQuery } from 'react-query'
+import { getTracks } from './api/tracks'
 
 const PLITEMS = 'playlistItems'
 const LABELS = 'labels'
 const TRACKS = 'tracks'
+type AudioFeaturesFilters = {
+  energy?: [number, number]
+}
 type Context = {
   token: string | null
   tracks: any[]
@@ -25,6 +29,12 @@ type Context = {
   playlistItems: Record<string, any>
   setSearch: React.Dispatch<React.SetStateAction<string>>
   search: string
+  isDrawerEnabled: boolean
+  enableDrawer: React.Dispatch<React.SetStateAction<boolean>>
+  audioFeaturesFilters: AudioFeaturesFilters
+  setAudioFeatureFilters: React.Dispatch<
+    React.SetStateAction<AudioFeaturesFilters>
+  >
 }
 
 const initialState = {
@@ -33,14 +43,23 @@ const initialState = {
   labels: [],
   tracks: [],
   playlistItems: {},
+  audioFeaturesFilters: {},
+  setAudioFeatureFilters: () => {},
   search: '',
   setSearch: () => {},
+  isDrawerEnabled: false,
+  enableDrawer: () => {},
 }
 export const appContext = createContext<Context>(initialState)
-const useWhaat = () =>
+let firstLoad = true
+const useWhaat = (setToken: React.Dispatch<React.SetStateAction<string>>) =>
   useEffect(() => {
-    if (localStorage.getItem('access-token')) return
-    if (/accept/.test(window.location.pathname)) {
+    if (!firstLoad) return
+    firstLoad = false
+    // if (localStorage.getItem('access-token')) return
+    if (localStorage.getItem('refresh-token')) {
+      refreshToken().then(({ access_token }) => setToken(access_token))
+    } else if (/accept/.test(window.location.pathname)) {
       getToken()
     } else {
       getAuthorizationCode()
@@ -81,9 +100,8 @@ const useGetUser = () => {
 }
 
 const usePlaylistItems = (labels: any[]) => {
-  console.log({labels})
   const { data } = useQuery(
-    PLITEMS+labels.length,
+    PLITEMS + labels.length,
     () =>
       getTrackForPlaylists(labels)
         .then((items: Record<string, any>) => {
@@ -106,27 +124,45 @@ const usePlaylistItems = (labels: any[]) => {
 }
 
 export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  useWhaat()
   const [labels, setLabels] = useState<any[]>(initialState.labels)
   const [tracks, setTracks] = useState<any[]>(initialState.tracks)
   const [search, setSearch] = useState('')
+  const [token, setToken] = useState('')
+  const [isDrawerEnabled, enableDrawer] = useState(true)
+  const [audioFeaturesFilters, setAudioFeatureFilters] =
+    useState<AudioFeaturesFilters>({})
   const user = useGetUser()
-  const token = localStorage.getItem('access-token')
+  useWhaat(setToken)
   usePlaylists(token, setLabels)
   useFetchTracks(token, setTracks)
   const playlistItems = usePlaylistItems(labels) || initialState.playlistItems
 
   const state = useMemo(
     () => ({
-      user,
-      search,
-      setSearch,
-      playlistItems,
-      tracks,
+      audioFeaturesFilters,
+      enableDrawer,
+      isDrawerEnabled,
       labels,
+      playlistItems,
+      search,
+      setAudioFeatureFilters,
+      setSearch,
+      tracks,
+      user,
       token: localStorage.getItem('access-token'),
     }),
-    [user, search, setSearch, playlistItems, tracks, labels]
+    [
+      audioFeaturesFilters,
+      enableDrawer,
+      isDrawerEnabled,
+      labels,
+      playlistItems,
+      search,
+      setAudioFeatureFilters,
+      setSearch,
+      tracks,
+      user,
+    ]
   )
   console.log(state)
   return <appContext.Provider value={state}>{children}</appContext.Provider>

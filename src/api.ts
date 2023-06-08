@@ -80,17 +80,15 @@ export const getPlaylists = async (offset = 0) => {
   return items
 }
 
-//@ts-ignore
-export const getTracks = async (offset = 0) => {
-  const result = await fetchWithCache(
-    `${BASE_URL}/me/tracks?limit=50&offset=${offset}`
+const getGenres = async () => {
+  const genres = await fetchWithCache(
+    `${BASE_URL}/recommendations/available-genre-seeds`
   )
-  const json = await result.json()
-  if (json.items.length === 50) {
-    return [...json.items.map(i => i.track), ...(await getTracks(offset + 50))]
-  }
-  return json.items.map(i => i.track)
+  console.log({ genres })
+  return genres
 }
+
+window.getGenres = getGenres
 
 export const getUser = () =>
   fetch(`${BASE_URL}/me`, headers()).then(e => e.json())
