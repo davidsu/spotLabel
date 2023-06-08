@@ -65,43 +65,29 @@ const useWhaat = (setToken: React.Dispatch<React.SetStateAction<string>>) =>
     }
   }, [])
 
-const usePlaylists = (
-  token: string | null,
-  setLabels: React.Dispatch<React.SetStateAction<any[]>>
-) =>
-  useEffect(() => {
-    if (token) {
-      getPlaylists().then((items: any[]) => {
-        setLabels(items)
-        localStorage.setItem(LABELS, JSON.stringify(items))
-        setValue(LABELS, items)
-      })
-    }
-  }, [token, setLabels])
+const usePlaylists = () =>
+  useQuery('playlists', () =>
+    getPlaylists().then((items: any[]) => {
+      setValue(LABELS, items)
+      return items
+    })
+  ).data
 
-let loaded = false
-const useFetchTracks = (
-  token: string | null,
-  setTracks: React.Dispatch<React.SetStateAction<any[]>>
-) =>
-  useEffect(() => {
-    if (token && !loaded) {
-      loaded = true
-      getTracks().then((items: any[]) => {
-        //@ts-ignore
-        window.setTracks(items)
-        //@ts-ignore
-        window.setValue(TRACKS, items)
-      })
-    }
-  }, [token, setTracks])
+const useFetchTracks = () =>
+  useQuery('tracks', () =>
+    getTracks().then((items: any[]) => {
+      //@ts-ignore
+      setValue(TRACKS, items)
+      return items
+    })
+  ).data
 
 const useGetUser = () => {
   const { data } = useQuery('user', () => getUser())
   return data
 }
 
-const usePlaylistItems = (labels: any[]) => {
+const usePlaylistItems = (labels: any[] = []) => {
   const { data } = useQuery(
     PLITEMS + labels.length,
     () =>
@@ -126,18 +112,16 @@ const usePlaylistItems = (labels: any[]) => {
 }
 
 export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
-  const [labels, setLabels] = useState<any[]>(initialState.labels)
-  const [tracks, setTracks] = useState<any[]>(initialState.tracks)
   const [search, setSearch] = useState('')
   const [token, setToken] = useState(localStorage.getItem('access-token'))
   const [isDrawerEnabled, enableDrawer] = useState(true)
   const [audioFeaturesFilters, setAudioFeatureFilters] =
     useState<AudioFeaturesFilters>({})
-  Object.assign(window, {setTracks, setValue})
   const user = useGetUser()
   useWhaat(setToken)
-  usePlaylists(token, setLabels)
-  useFetchTracks(token, setTracks)
+  const labels = usePlaylists() || []
+  const tracks = useFetchTracks() || []
+  console.log({labels, tracks})
   const playlistItems = usePlaylistItems(labels) || initialState.playlistItems
 
   const state = useMemo(
