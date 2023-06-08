@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { getValue, setValue } from '../cache'
 
 export const BASE_URL = 'https://api.spotify.com/v1'
@@ -6,7 +7,8 @@ const headers = () => ({
     Authorization: 'Bearer ' + localStorage.getItem('access-token')!,
   },
 })
-export const apiFetch = (url: string) => fetch(url, headers())
+export const apiFetch = (url: string, options: RequestInit = {}) =>
+  fetch(url, _.merge(options, headers()))
 let cachehit = 0
 export const fetchWithCache = async (
   url: string,

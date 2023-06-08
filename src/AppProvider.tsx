@@ -88,7 +88,6 @@ const useFetchTracks = (
     if (token) {
       getTracks().then((items: any[]) => {
         setTracks(items)
-        localStorage.setItem(TRACKS, JSON.stringify(items))
         setValue(TRACKS, items)
       })
     }

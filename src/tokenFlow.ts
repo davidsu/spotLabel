@@ -73,6 +73,41 @@ export function getAuthorizationCode() {
   })
 }
 
+export function refreshToken() {
+  console.log('refresh token')
+  const refresh_token = localStorage.getItem('refresh-token')
+
+  //@ts-ignore
+  let body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    client_id: clientId,
+    refresh_token,
+  })
+
+  const response = fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body,
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('HTTP status ' + response.status)
+      }
+      return response.json()
+    })
+    .then(data => {
+      localStorage.setItem('access-token', data.access_token)
+      localStorage.setItem('refresh-token', data.refresh_token)
+      return data
+    })
+    .catch(error => {
+      console.error('Error:', error)
+    })
+  return response
+  // return code
+}
 export function getToken() {
   const urlParams = new URLSearchParams(window.location.search)
   let code = urlParams.get('code')
@@ -102,6 +137,7 @@ export function getToken() {
     })
     .then(data => {
       localStorage.setItem('access-token', data.access_token)
+      localStorage.setItem('refresh-token', data.refresh_token)
       //@ts-ignore
       window.location = home
     })

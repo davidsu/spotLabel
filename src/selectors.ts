@@ -41,6 +41,7 @@ export const useTracks = () => {
         }
       })
       .value()
+      .slice(0, 50)
     setEnriched(result)
   }, [tracks, playlistItems, setEnriched, search, audioFeaturesFilters])
   return enriched
