@@ -79,15 +79,19 @@ const usePlaylists = (
     }
   }, [token, setLabels])
 
+let loaded = false
 const useFetchTracks = (
   token: string | null,
   setTracks: React.Dispatch<React.SetStateAction<any[]>>
 ) =>
   useEffect(() => {
-    if (token) {
+    if (token && !loaded) {
+      loaded = true
       getTracks().then((items: any[]) => {
-        setTracks(items)
-        setValue(TRACKS, items)
+        //@ts-ignore
+        window.setTracks(items)
+        //@ts-ignore
+        window.setValue(TRACKS, items)
       })
     }
   }, [token, setTracks])
@@ -129,6 +133,7 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [isDrawerEnabled, enableDrawer] = useState(true)
   const [audioFeaturesFilters, setAudioFeatureFilters] =
     useState<AudioFeaturesFilters>({})
+  Object.assign(window, {setTracks, setValue})
   const user = useGetUser()
   useWhaat(setToken)
   usePlaylists(token, setLabels)
