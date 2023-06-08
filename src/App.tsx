@@ -1,14 +1,8 @@
-import {
-  CssBaseline,
-} from '@mui/material'
-import {
-  createTheme,
-  ThemeOptions,
-  ThemeProvider,
-} from '@mui/material/styles'
+import { CssBaseline } from '@mui/material'
+import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles'
 import { AppProvider } from './AppProvider'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import {Likes} from './screens/Likes/Likes'
+import { Likes } from './screens/Likes/Likes'
 
 const queryClient = new QueryClient()
 
@@ -30,6 +24,7 @@ function Bootstrap() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <h1>boo</h1>
         <AppProvider>
           <Likes />
         </AppProvider>
