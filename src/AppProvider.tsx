@@ -2,13 +2,11 @@ import {
   createContext,
   FC,
   ReactElement,
-  ReactNode,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react'
-import { getAuthorizationCode, getToken, refreshToken } from './tokenFlow'
+import { getAuthorizationCode, getToken } from './tokenFlow'
 import './api'
 import { setValue } from './cache'
 import { getPlaylists, getTrackForPlaylists, getUser } from './api'
@@ -24,8 +22,6 @@ type AudioFeaturesFilters = {
 }
 type Context = {
   token: string | null
-  tracks: any[]
-  labels: any[]
   user: any
   playlistItems: Record<string, any>
   setSearch: React.Dispatch<React.SetStateAction<string>>
@@ -41,8 +37,6 @@ type Context = {
 const initialState = {
   token: '',
   user: {},
-  labels: [],
-  tracks: [],
   playlistItems: {},
   audioFeaturesFilters: {},
   setAudioFeatureFilters: () => {},
@@ -53,7 +47,7 @@ const initialState = {
 }
 export const appContext = createContext<Context>(initialState)
 let firstLoad = true
-const useWhaat = (setToken: React.Dispatch<React.SetStateAction<string>>) =>
+const useWhaat = () =>
   useEffect(() => {
     if (!firstLoad) return
     firstLoad = false
@@ -71,7 +65,7 @@ const usePlaylists = () =>
       setValue(LABELS, items)
       return items
     })
-  ).data
+  ).data || []
 
 const useFetchTracks = () =>
   useQuery('tracks', () =>
@@ -80,7 +74,7 @@ const useFetchTracks = () =>
       setValue(TRACKS, items)
       return items
     })
-  ).data
+  ).data || []
 
 const useGetUser = () => {
   const { data } = useQuery('user', () => getUser())
@@ -113,12 +107,11 @@ const usePlaylistItems = (labels: any[] = []) => {
 
 export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [search, setSearch] = useState('')
-  const [token, setToken] = useState(localStorage.getItem('access-token'))
   const [isDrawerEnabled, enableDrawer] = useState(true)
   const [audioFeaturesFilters, setAudioFeatureFilters] =
     useState<AudioFeaturesFilters>({})
   const user = useGetUser()
-  useWhaat(setToken)
+  useWhaat()
   const labels = usePlaylists() || []
   const tracks = useFetchTracks() || []
   console.log({labels, tracks})
@@ -136,7 +129,7 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
       setSearch,
       tracks,
       user,
-      token,
+      token: localStorage.getItem('access-token'),
     }),
     [
       audioFeaturesFilters,
@@ -148,7 +141,6 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
       setAudioFeatureFilters,
       setSearch,
       tracks,
-      token,
       user,
     ]
   )

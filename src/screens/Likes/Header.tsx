@@ -19,14 +19,14 @@ const usePlayCurrentItems = () => {
     await apiFetch(`${BASE_URL}/playlists/${playlist.id}/tracks`, {
       method: 'POST',
       body: JSON.stringify({
-        uris: tracks.map(track => track.uri)
+        uris: tracks.map(track => track.uri),
       }),
     })
-    console.log({playlist})
+    console.log({ playlist })
     // const playerState = await apiFetch(`${BASE_URL}/me/player`)
     apiFetch(`${BASE_URL}/me/player/play`, {
       method: 'PUT',
-      body: JSON.stringify({context_uri: playlist.uri}),
+      body: JSON.stringify({ context_uri: playlist.uri }),
     })
   }
 }
@@ -35,22 +35,25 @@ export const Header = () => {
 
   const playCurrentItems = usePlayCurrentItems()
   return (
-    <Stack textAlign="center" alignSelf={'center'}>
-      <TextField
-        size="small"
-        sx={{ minWidth: '87%', marginRight: '6px' }}
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-      />
-      <Button
-        size="large"
-        variant="outlined"
-        color="success"
-        sx={{ marginTop: '2px' }}
-        onClick={playCurrentItems}
-      >
-        <PlayArrowIcon fontSize="small" color="success" />
-      </Button>
-    </Stack>
+    <>
+      <h5 style={{textAlign: 'center', margin: '0'}}>Likes</h5>
+      <Stack textAlign="center" alignSelf={'center'}>
+        <TextField
+          size="small"
+          sx={{ minWidth: '87%', marginRight: '6px' }}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <Button
+          size="large"
+          variant="outlined"
+          color="success"
+          sx={{ marginTop: '2px' }}
+          onClick={playCurrentItems}
+        >
+          <PlayArrowIcon fontSize="small" color="success" />
+        </Button>
+      </Stack>
+    </>
   )
 }

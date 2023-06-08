@@ -1,34 +1,34 @@
-import { CssBaseline } from '@mui/material'
-import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles'
+import { Drawer, IconButton, Stack } from '@mui/material'
 import { AppProvider } from './AppProvider'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { Likes } from './screens/Likes/Likes'
-
-const queryClient = new QueryClient()
-
-export const themeOptions: ThemeOptions = {
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#3f51b5',
-    },
-    secondary: {
-      main: '#f50057',
-    },
-  },
-}
-
-const theme = createTheme(themeOptions)
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 function Bootstrap() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppProvider>
-          <Likes />
-        </AppProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <AppProvider>
+      <>
+        <Drawer
+          open
+          variant="permanent"
+          anchor="bottom"
+          sx={{
+            '& .MuiDrawer-paper': {
+              // width: '40px'
+            },
+          }}
+        >
+          <Stack alignItems="center" direction="row" justifyContent="center" spacing={8}>
+            <IconButton>
+              <FavoriteIcon fontSize="small" />
+            </IconButton>
+            <IconButton>
+              <PeopleOutlineIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Drawer>
+        <Likes />
+      </>
+    </AppProvider>
   )
 }
 
