@@ -1,9 +1,11 @@
-import { Box as Stack, Button, TextField } from '@mui/material'
+import { Stack, Button, TextField } from '@mui/material'
 import { useContext } from 'react'
 import { appContext } from '../../AppProvider'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { useTracks } from '../../selectors'
 import { apiFetch, BASE_URL } from '../../api/utils'
+import { home } from '../../tokenFlow'
+import { clearCache } from '../../cache'
 
 const usePlayCurrentItems = () => {
   const tracks = useTracks()
@@ -36,16 +38,35 @@ export const Header = () => {
   const playCurrentItems = usePlayCurrentItems()
   return (
     <>
-      <h5 style={{textAlign: 'center', margin: '0'}}>Likes</h5>
-      <Stack textAlign="center" alignSelf={'center'}>
-        <TextField
+      <h5 style={{ textAlign: 'center', margin: '0' }}>Likes</h5>
+      <Stack
+        paddingX={5}
+        spacing={3}
+        direction="row"
+        justifyContent="space-around"
+        alignSelf={'center'}
+      >
+        <Button
+          variant="outlined"
           size="small"
-          sx={{ minWidth: '87%', marginRight: '6px' }}
+          onClick={() => {
+            localStorage.clear()
+            //@ts-ignore
+            clearCache()
+            //@ts-ignore
+            window.location = home
+          }}
+        >
+          Restart
+        </Button>
+        <TextField
+          fullWidth
+          size="small"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <Button
-          size="large"
+          size="small"
           variant="outlined"
           color="success"
           sx={{ marginTop: '2px' }}

@@ -49,7 +49,8 @@ async function generateCodeChallenge(codeVerifier: string) {
 const clientId = import.meta.env.PROD
   ? '08bb5e52ec0d4e6aaf8c45655cc8bdc4'
   : 'a8072301988e40ee9439837c265631fd'
-const home = window.location.origin + (import.meta.env.PROD ? '/spotLabel' : '')
+export const home =
+  window.location.origin + (import.meta.env.PROD ? '/spotLabel' : '')
 const redirectUri = `${home}/accept`
 
 let codeVerifier = generateRandomString(128)
