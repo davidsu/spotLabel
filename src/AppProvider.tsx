@@ -146,5 +146,5 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
     ]
   )
   // console.log(state)
-  return <appContext.Provider value={state}>{children}</appContext.Provider>
+  return state.token && <appContext.Provider value={state}>{children}</appContext.Provider>
 }

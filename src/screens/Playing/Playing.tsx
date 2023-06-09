@@ -1,5 +1,5 @@
 import { Stack, Avatar, Typography, IconButton } from '@mui/material'
-import { useRecoilValue } from 'recoil'
+import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil'
 import { AudioFeaturesInfo } from '../../components/AudioFeatures'
 import {
   apiWithCache,
@@ -8,7 +8,7 @@ import {
 } from '../../state/atoms'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
-import {skipNext, skipPrev} from '../../api/player'
+import { skipNext, skipPrev } from '../../api/player'
 
 function InfoChip({ albumName, image, name }) {
   return (
@@ -47,12 +47,24 @@ function PlayingHeader() {
 }
 
 function PlayingFooter() {
+  const refresh = useRecoilRefresher_UNSTABLE(currPlayerState)
+
   return (
     <Stack direction="row" spacing={5}>
-      <IconButton onClick={skipPrev}>
+      <IconButton
+        onClick={() => {
+          skipPrev()
+          refresh()
+        }}
+      >
         <SkipPreviousIcon />
       </IconButton>
-      <IconButton onClick={skipNext}>
+      <IconButton
+        onClick={() => {
+          skipNext()
+          refresh()
+        }}
+      >
         <SkipNextIcon />
       </IconButton>
     </Stack>

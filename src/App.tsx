@@ -3,7 +3,7 @@ import { AppProvider } from './AppProvider'
 import { Likes } from './screens/Likes/Likes'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
-import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from '@mui/icons-material/Home'
 import {
   RecoilRoot,
   atom,
@@ -11,11 +11,12 @@ import {
   useRecoilState,
   useRecoilValue,
 } from 'recoil'
-import {currScreenState} from './state/atoms'
-import {SCREENS} from './consts'
-import {Playing} from './screens/Playing/Playing'
+import { currScreenState } from './state/atoms'
+import { SCREENS } from './consts'
+import { Playing } from './screens/Playing/Playing'
+import { Suspense } from 'react'
 function Navigation() {
-    const [_, setCurrentScreen] = useRecoilState(currScreenState)
+  const [_, setCurrentScreen] = useRecoilState(currScreenState)
 
   return (
     <Stack
@@ -36,13 +37,13 @@ function Navigation() {
     </Stack>
   )
 }
-function Artists(){
+function Artists() {
   return <h1>Artists</h1>
 }
 
 function CurrentScreen() {
   const [currentScreen] = useRecoilState(currScreenState)
-  switch(currentScreen) {
+  switch (currentScreen) {
     case SCREENS.home:
       return <Playing />
     case SCREENS.likes:
@@ -69,7 +70,9 @@ function Bootstrap() {
         >
           <Navigation />
         </Drawer>
-        <CurrentScreen />
+        <Suspense>
+          <CurrentScreen />
+        </Suspense>
       </>
     </AppProvider>
   )
