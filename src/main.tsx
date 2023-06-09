@@ -1,4 +1,5 @@
 import { createTheme, ThemeOptions, ThemeProvider } from '@mui/material/styles'
+import RecoilizeDebugger from 'recoilize';
 import { CssBaseline } from '@mui/material'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -26,6 +27,7 @@ const render = () => {
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
       <RecoilRoot>
+      <RecoilizeDebugger />
         <QueryClientProvider client={queryClient}>
           <ThemeProvider theme={theme}>
             <CssBaseline />

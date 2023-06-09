@@ -77,7 +77,6 @@ export function getAuthorizationCode() {
 }
 
 export function refreshToken() {
-  console.log('refresh token')
   const refresh_token = localStorage.getItem('refresh-token')
 
   //@ts-ignore

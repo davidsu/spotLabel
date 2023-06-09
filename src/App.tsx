@@ -13,6 +13,7 @@ import {
 } from 'recoil'
 import {currScreenState} from './state/atoms'
 import {SCREENS} from './consts'
+import {Playing} from './screens/Playing/Playing'
 function Navigation() {
     const [_, setCurrentScreen] = useRecoilState(currScreenState)
 
@@ -35,16 +36,12 @@ function Navigation() {
     </Stack>
   )
 }
-function Playing(){
-  return <h1>Playing</h1>
-}
 function Artists(){
   return <h1>Artists</h1>
 }
 
 function CurrentScreen() {
   const [currentScreen] = useRecoilState(currScreenState)
-  debugger
   switch(currentScreen) {
     case SCREENS.home:
       return <Playing />

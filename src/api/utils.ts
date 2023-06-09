@@ -16,7 +16,6 @@ export const fetchWithCache = async (
 ): Promise<Pick<Response, 'ok' | 'json' | 'status'>> => {
   const cached = await getValue(url)
   if (useCache && cached) {
-    console.log('cache hit: ', ++cachehit)
     return Promise.resolve({
       ok: true,
       status: 200,

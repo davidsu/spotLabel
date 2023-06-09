@@ -1163,6 +1163,11 @@ recoil@^0.7.7:
   dependencies:
     hamt_plus "1.0.2"
 
+recoilize@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/recoilize/-/recoilize-3.2.0.tgz#aaf4c76390293a105a73b74dced7a49dfbeb1c84"
+  integrity sha512-2J0SEzefl8rKe5iaJ2vVg6AgWy5aQ8NFPfZbZfXagycF5ohUzCQA2c2SZDz5jtZfYmendR8hsILstPyofxfg7g==
+
 regenerator-runtime@^0.13.11:
   version "0.13.11"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"

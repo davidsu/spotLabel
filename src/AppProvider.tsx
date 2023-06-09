@@ -100,7 +100,7 @@ const usePlaylistItems = (labels: any[] = []) => {
           return mapped
         })
         .catch(e => {
-          console.log(e)
+          console.error(e)
         }),
     { cacheTime: 9999, refetchOnWindowFocus: false }
   )
@@ -116,7 +116,6 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   useWhaat()
   const labels = usePlaylists() || []
   const tracks = useFetchTracks() || []
-  console.log({labels, tracks})
   const playlistItems = usePlaylistItems(labels) || initialState.playlistItems
 
   const state = useMemo(
@@ -146,6 +145,6 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
       user,
     ]
   )
-  console.log(state)
+  // console.log(state)
   return <appContext.Provider value={state}>{children}</appContext.Provider>
 }

@@ -24,7 +24,6 @@ const usePlayCurrentItems = () => {
         uris: tracks.map(track => track.uri),
       }),
     })
-    console.log({ playlist })
     // const playerState = await apiFetch(`${BASE_URL}/me/player`)
     apiFetch(`${BASE_URL}/me/player/play`, {
       method: 'PUT',
