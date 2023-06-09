@@ -1,4 +1,5 @@
 import { atom, selector, selectorFamily } from 'recoil'
+import { apiFetchAlbum } from '../api/albums'
 import { getTracksAudioFeatures as apiFetchAudioFeatures } from '../api/tracks'
 import { apiFetch, BASE_URL, fetchWithCache } from '../api/utils'
 
@@ -20,4 +21,10 @@ export const apiWithCache = selectorFamily({
 export const getTracksAudioFeatures = selectorFamily({
   key: 'getTracksAudioFeatures',
   get: (ids: string[]) => () => apiFetchAudioFeatures(ids),
+})
+
+export const syncDevtools = atom({ key: 'syncDevtools', default: {} })
+export const getAlbum = selectorFamily({
+  key: 'getTracksAudioFeatures',
+  get: (id: string) => () => apiFetchAlbum(id).catch(e => {}),
 })

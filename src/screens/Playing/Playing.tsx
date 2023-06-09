@@ -1,14 +1,21 @@
 import { Stack, Avatar, Typography, IconButton } from '@mui/material'
-import { useRecoilRefresher_UNSTABLE, useRecoilValue } from 'recoil'
+import {
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useRecoilValue,
+} from 'recoil'
 import { AudioFeaturesInfo } from '../../components/AudioFeatures'
 import {
   apiWithCache,
   currPlayerState,
+  getAlbum,
   getTracksAudioFeatures,
+  syncDevtools,
 } from '../../state/atoms'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import { skipNext, skipPrev } from '../../api/player'
+import { useEffect } from 'react'
 
 function InfoChip({ albumName, image, name }) {
   return (
@@ -53,16 +60,14 @@ function PlayingFooter() {
     <Stack direction="row" spacing={5}>
       <IconButton
         onClick={() => {
-          skipPrev()
-          refresh()
+          skipPrev().then(() => setTimeout(refresh, 100))
         }}
       >
         <SkipPreviousIcon />
       </IconButton>
       <IconButton
         onClick={() => {
-          skipNext()
-          refresh()
+          skipNext().then(() => setTimeout(refresh, 100))
         }}
       >
         <SkipNextIcon />
@@ -70,10 +75,19 @@ function PlayingFooter() {
     </Stack>
   )
 }
+const useSyncDevTools = ({ album, tracks }) => {
+  const [syncDevtools_, setSync] = useRecoilState(syncDevtools)
+  useEffect(() => {
+    setSync({ album, tracks })
+  }, [album, tracks, setSync])
+  console.log({syncDevtools_})
+}
 export function Playing() {
   const playerState = useRecoilValue(currPlayerState)
   const item = playerState?.item
   const tracks = useRecoilValue(getTracksAudioFeatures([item.id]))
+  const album = useRecoilValue(getAlbum(item?.album?.id))
+  useSyncDevTools({ album, tracks })
   return (
     <Stack direction="column" spacing={1} alignItems="center">
       <PlayingHeader />
@@ -82,6 +96,12 @@ export function Playing() {
           track={{ audioFeatures: tracks.audio_features[0] }}
         />
       )}
+      {!!album?.genres?.length &&
+        album.genres.map(g => (
+          <Typography variant="caption" key={g}>
+            {g}
+          </Typography>
+        ))}
       <PlayingFooter />
     </Stack>
   )
