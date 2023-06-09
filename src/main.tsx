@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import App from './App'
 import { refreshToken } from './tokenFlow'
+import {RecoilRoot} from 'recoil'
 
 const queryClient = new QueryClient()
 
@@ -24,12 +25,14 @@ const theme = createTheme(themeOptions)
 const render = () => {
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <App />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <RecoilRoot>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <App />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </RecoilRoot>
     </React.StrictMode>
   )
 }
