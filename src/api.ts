@@ -7,7 +7,7 @@ const headers = () => ({
   },
 })
 
-export const apiFetch = (url: string, options = {}) =>
+const apiFetch = (url: string, options = {}) =>
   fetch(url, _.merge(headers(), options))
 
 let cachehit = 0

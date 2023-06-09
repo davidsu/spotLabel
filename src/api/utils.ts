@@ -9,6 +9,8 @@ const headers = () => ({
 })
 export const apiFetch = (url: string, options: RequestInit = {}) =>
   fetch(url, _.merge(options, headers()))
+//@ts-ignore
+window.apiFetch = apiFetch
 let cachehit = 0
 export const fetchWithCache = async (
   url: string,

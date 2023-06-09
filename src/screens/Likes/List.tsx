@@ -1,7 +1,7 @@
 import { List, ListItem, Stack, Typography, Box, Tooltip } from '@mui/material'
 import _ from 'lodash'
+import {AudioFeaturesInfo} from '../../components/AudioFeatures'
 import { useTracks } from '../../selectors'
-import { AudioFeaturesInfo } from './AudioFeatures'
 
 export const LikesList = () => {
   const tracks = useTracks()
