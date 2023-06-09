@@ -22,6 +22,7 @@ type AudioFeaturesFilters = {
 }
 type Context = {
   token: string | null
+  tracks: any[]
   user: any
   playlistItems: Record<string, any>
   setSearch: React.Dispatch<React.SetStateAction<string>>
@@ -36,6 +37,7 @@ type Context = {
 
 const initialState = {
   token: '',
+  tracks: [],
   user: {},
   playlistItems: {},
   audioFeaturesFilters: {},
