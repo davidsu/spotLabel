@@ -15,7 +15,8 @@ import {
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import { skipNext, skipPrev } from '../../api/player'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { apiFetch, BASE_URL } from '../../api/utils'
 
 function InfoChip({ albumName, image, name }) {
   return (
@@ -54,20 +55,18 @@ function PlayingHeader() {
 }
 
 function PlayingFooter() {
-  const refresh = useRecoilRefresher_UNSTABLE(currPlayerState)
-
   return (
     <Stack direction="row" spacing={5}>
       <IconButton
         onClick={() => {
-          skipPrev().then(() => setTimeout(refresh, 100))
+          skipPrev()
         }}
       >
         <SkipPreviousIcon />
       </IconButton>
       <IconButton
         onClick={() => {
-          skipNext().then(() => setTimeout(refresh, 100))
+          skipNext()
         }}
       >
         <SkipNextIcon />
@@ -80,14 +79,36 @@ const useSyncDevTools = ({ album, tracks }) => {
   useEffect(() => {
     setSync({ album, tracks })
   }, [album, tracks, setSync])
-  console.log({syncDevtools_})
+  console.log({ syncDevtools_ })
+}
+
+type PlayingItem = {
+  id?: string
+  album?: any
+}
+
+const usePlayerState = () => {
+  const [item, setItem] = useState<PlayingItem>({})
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const playerState = await apiFetch(`${BASE_URL}/me/player`).then(e =>
+        e.json()
+      )
+      if (playerState?.item?.id !== item?.id) {
+        setItem(playerState.item)
+      }
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+  return item
 }
 export function Playing() {
-  const playerState = useRecoilValue(currPlayerState)
-  const item = playerState?.item
+  const item = usePlayerState()
   const tracks = useRecoilValue(getTracksAudioFeatures([item.id]))
   const album = useRecoilValue(getAlbum(item?.album?.id))
-  useSyncDevTools({ album, tracks })
+
+
+  if (!item.id) return <h1>Loading</h1>
   return (
     <Stack direction="column" spacing={1} alignItems="center">
       <PlayingHeader />
