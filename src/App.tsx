@@ -48,7 +48,11 @@ function CurrentScreen() {
     case SCREENS.home:
       return <Playing />
     case SCREENS.likes:
-      return <Likes />
+      return (
+        <AppProvider>
+          <Likes />
+        </AppProvider>
+      )
     case SCREENS.artists:
       return <Artists />
     default:
@@ -57,25 +61,23 @@ function CurrentScreen() {
 }
 function Bootstrap() {
   return (
-    <AppProvider>
-      <>
-        <Drawer
-          open
-          variant="permanent"
-          anchor="bottom"
-          sx={{
-            '& .MuiDrawer-paper': {
-              // width: '40px'
-            },
-          }}
-        >
-          <Navigation />
-        </Drawer>
-        <Suspense>
-          <CurrentScreen />
-        </Suspense>
-      </>
-    </AppProvider>
+    <>
+      <Drawer
+        open
+        variant="permanent"
+        anchor="bottom"
+        sx={{
+          '& .MuiDrawer-paper': {
+            // width: '40px'
+          },
+        }}
+      >
+        <Navigation />
+      </Drawer>
+      <Suspense>
+        <CurrentScreen />
+      </Suspense>
+    </>
   )
 }
 
