@@ -48,18 +48,6 @@ const initialState = {
   enableDrawer: () => {},
 }
 export const appContext = createContext<Context>(initialState)
-let firstLoad = true
-const useWhaat = () =>
-  useEffect(() => {
-    if (!firstLoad) return
-    firstLoad = false
-    if (localStorage.getItem('access-token')) return
-    if (/accept/.test(window.location.pathname)) {
-      getToken()
-    } else {
-      getAuthorizationCode()
-    }
-  }, [])
 
 const usePlaylists = () =>
   useQuery('playlists', () =>
@@ -113,7 +101,6 @@ export const AppProvider: FC<{ children: ReactElement }> = ({ children }) => {
   const [audioFeaturesFilters, setAudioFeatureFilters] =
     useState<AudioFeaturesFilters>({})
   const user = useGetUser()
-  useWhaat()
   const labels = usePlaylists() || []
   const tracks = useFetchTracks() || []
   const playlistItems = usePlaylistItems(labels) || initialState.playlistItems

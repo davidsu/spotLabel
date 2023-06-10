@@ -15,7 +15,8 @@ import {
 import { currScreenState } from './state/atoms'
 import { SCREENS } from './consts'
 import { Playing } from './screens/Playing/Playing'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
+import {getAuthorizationCode, getToken} from './tokenFlow'
 function Navigation() {
   const [_, setCurrentScreen] = useRecoilState(currScreenState)
 
@@ -48,18 +49,28 @@ function CurrentScreen() {
     case SCREENS.home:
       return <Playing />
     case SCREENS.likes:
-      return (
-        <AppProvider>
-          <Likes />
-        </AppProvider>
-      )
+      return <Likes />
     case SCREENS.artists:
       return <Artists />
     default:
       return <Playing />
   }
 }
+let firstLoad = true
+const useWhaat = () =>
+  useEffect(() => {
+    if (!firstLoad) return
+    firstLoad = false
+    if (localStorage.getItem('access-token')) return
+    if (/accept/.test(window.location.pathname)) {
+      getToken()
+    } else {
+      getAuthorizationCode()
+    }
+  }, [])
+
 function Bootstrap() {
+  useWhaat()
   return (
     <>
       <Drawer

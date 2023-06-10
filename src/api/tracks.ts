@@ -21,6 +21,20 @@ const toExtendedTracks = async (tracks: any[]) => {
     }
   })
 }
+export const getTracksSlim = async (offset = 0) => {
+  const result = await fetchWithCache(
+    `${BASE_URL}/me/tracks?limit=50&offset=${offset}`,
+    false
+  )
+  const json = await result.json()
+  if (json.items.length === 50) {
+    return [
+      ...json.items.map(({ track }) => track),
+      ...(await getTracks(offset + 50)),
+    ]
+  }
+  return json.items.map(({ track }) => track)
+}
 export const getTracks = async (offset = 0) => {
   const result = await fetchWithCache(
     `${BASE_URL}/me/tracks?limit=50&offset=${offset}`

@@ -1,9 +1,7 @@
 import { Stack, Avatar, Typography, IconButton } from '@mui/material'
-import {
-  useRecoilRefresher_UNSTABLE,
-  useRecoilState,
-  useRecoilValue,
-} from 'recoil'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { AudioFeaturesInfo } from '../../components/AudioFeatures'
 import {
   apiWithCache,
@@ -15,24 +13,21 @@ import {
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import { skipNext, skipPrev } from '../../api/player'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, BASE_URL } from '../../api/utils'
+import { useQuery, useQueryClient } from 'react-query'
+import { getTracks, getTracksSlim } from '../../api/tracks'
 
 function InfoChip({ albumName, image, name }) {
   return (
     <Stack direction="column" spacing={0} alignItems="center">
-      <Avatar
-        variant="square"
-        sx={{ width: '220px', height: '220px' }}
-        src={image}
-      />
+      <img style={{ width: '220px', height: '220px' }} src={image} />
       <Typography variant="caption">{albumName}</Typography>
       <Typography variant="caption">{name}</Typography>
     </Stack>
   )
 }
-function PlayingHeader() {
-  const playerState = useRecoilValue(currPlayerState)
+function PlayingHeader({ playerState }) {
   const item = playerState?.item
   const album = item?.album || {}
   // const track = useRecoilValue(apiWithCache(item.href))
@@ -87,31 +82,38 @@ type PlayingItem = {
   album?: any
 }
 
-const usePlayerState = () => {
-  const [item, setItem] = useState<PlayingItem>({})
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const playerState = await apiFetch(`${BASE_URL}/me/player`).then(e =>
-        e.json()
-      )
-      if (playerState?.item?.id !== item?.id) {
-        setItem(playerState.item)
-      }
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
-  return item
-}
+const usePlayerState = () =>
+  useQuery(
+    'playerState',
+    () => apiFetch(`${BASE_URL}/me/player`).then(e => e.json()),
+    { refetchInterval: 3000 }
+  ).data || {}
+
+const emptyArr = []
+const useFetchTracks = () =>
+  useQuery({
+    queryKey: ['tracks'],
+    queryFn: () => getTracksSlim(),
+  }).data || emptyArr
+
+const empty = {}
 export function Playing() {
-  const item = usePlayerState()
+  const queryClient = useQueryClient()
+  const playerState = usePlayerState()
+  const item = useMemo(() => playerState.item || empty, [playerState.item?.id])
   const tracks = useRecoilValue(getTracksAudioFeatures([item.id]))
   const album = useRecoilValue(getAlbum(item?.album?.id))
-
+  const likedList = useFetchTracks()
+  const liked = useMemo(
+    () => !!likedList.find(i => item.id == i.id),
+    [item, likedList]
+  )
+  Object.assign(window, { item, likedList, liked })
 
   if (!item.id) return <h1>Loading</h1>
   return (
     <Stack direction="column" spacing={1} alignItems="center">
-      <PlayingHeader />
+      <PlayingHeader playerState={playerState} />
       {!!tracks?.audio_features?.length && (
         <AudioFeaturesInfo
           track={{ audioFeatures: tracks.audio_features[0] }}
@@ -123,6 +125,19 @@ export function Playing() {
             {g}
           </Typography>
         ))}
+      <IconButton
+        onClick={() => {
+          apiFetch(`${BASE_URL}/me/tracks`, {
+            method: liked ? 'DELETE' : 'PUT',
+            body: JSON.stringify({
+              ids: [item.id],
+            }),
+          })
+          queryClient.invalidateQueries({ queryKey: ['tracks'] })
+        }}
+      >
+        {liked ? <FavoriteIcon color="success" /> : <FavoriteBorderIcon />}
+      </IconButton>
       <PlayingFooter />
     </Stack>
   )
