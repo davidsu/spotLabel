@@ -15,7 +15,7 @@ const fetchWithCache = async (
   url: string,
   useCache = true
 ): Promise<Pick<Response, 'ok' | 'json' | 'status'>> => {
-  const cached = await getValue(url)
+  const cached = await getValue(url).catch(e => {})
   if (useCache && cached) {
     return Promise.resolve({
       ok: true,
@@ -28,7 +28,7 @@ const fetchWithCache = async (
     return Promise.reject(response)
   }
   const result = await response.json()
-  setValue(url, result)
+  setValue(url, result).catch(e => {})
   return { ...result, json: () => Promise.resolve(result), ok: true }
 }
 

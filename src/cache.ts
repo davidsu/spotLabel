@@ -5,7 +5,7 @@ const dbP = openDB(STORE_NAME, 1, {
   upgrade(db) {
     db.createObjectStore('cache')
   },
-})
+}).catch()
 
 export const setValue = (key: string, value: Record<string, any>) =>
   dbP.then(db => db.put('cache', value, key))
