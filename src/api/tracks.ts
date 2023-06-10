@@ -30,7 +30,7 @@ export const getTracksSlim = async (offset = 0) => {
   if (json.items.length === 50) {
     return [
       ...json.items.map(({ track }) => track),
-      ...(await getTracks(offset + 50)),
+      ...(await getTracksSlim(offset + 50)),
     ]
   }
   return json.items.map(({ track }) => track)
