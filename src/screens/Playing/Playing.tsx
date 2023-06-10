@@ -35,7 +35,9 @@ function PlayingHeader({ playerState }) {
   return (
     <>
       <Stack direction="column" spacing={0} alignItems="center">
-        <h5 style={{ margin: 0 }}>Playing</h5>
+        <Typography component={'h5'} margin={0}>
+          Playing
+        </Typography>
         <Typography variant="caption" sx={{ textAlign: 'center', margin: '0' }}>
           {context?.name}
         </Typography>
