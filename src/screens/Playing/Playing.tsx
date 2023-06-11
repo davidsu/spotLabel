@@ -88,7 +88,7 @@ const usePlayerState = () =>
   useQuery(
     'playerState',
     () => apiFetch(`${BASE_URL}/me/player`).then(e => e.json()),
-    { refetchInterval: 3000 }
+    { refetchInterval: 1000 }
   ).data || {}
 
 const emptyArr = []
@@ -100,6 +100,7 @@ const useFetchTracks = () =>
 
 const empty = {}
 export function Playing() {
+  const [localLiked, setLocalLiked] = useState([])
   const queryClient = useQueryClient()
   const playerState = usePlayerState()
   const item = useMemo(() => playerState.item || empty, [playerState.item?.id])
@@ -107,8 +108,9 @@ export function Playing() {
   const album = useRecoilValue(getAlbum(item?.album?.id))
   const likedList = useFetchTracks()
   const liked = useMemo(
-    () => !!likedList.find(i => item.id == i.id),
-    [item, likedList]
+    () =>
+      !!likedList.find(i => item.id == i.id) || localLiked.includes(item.id),
+    [item, likedList, localLiked]
   )
   Object.assign(window, { item, likedList, liked })
 
@@ -135,6 +137,11 @@ export function Playing() {
               ids: [item.id],
             }),
           })
+          if (liked) {
+            setLocalLiked(localLiked.filter(i => i !== item.id))
+          } else {
+            setLocalLiked([...localLiked, item.id])
+          }
           queryClient.invalidateQueries({ queryKey: ['tracks'] })
         }}
       >
