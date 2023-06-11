@@ -10,7 +10,7 @@ import { getAuthorizationCode, getToken } from './tokenFlow'
 import './api'
 import { setValue } from './cache'
 import { getPlaylists, getTrackForPlaylists, getUser } from './api'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getTracks } from './api/tracks'
 
 const PLITEMS = 'playlistItems'
@@ -50,7 +50,7 @@ const initialState = {
 export const appContext = createContext<Context>(initialState)
 
 const usePlaylists = () =>
-  useQuery('playlists', () =>
+  useQuery(['playlists'], () =>
     getPlaylists().then((items: any[]) => {
       setValue(LABELS, items)
       return items
@@ -58,7 +58,7 @@ const usePlaylists = () =>
   ).data || []
 
 const useFetchTracks = () =>
-  useQuery('tracks', () =>
+  useQuery(['tracks'], () =>
     getTracks().then((items: any[]) => {
       //@ts-ignore
       setValue(TRACKS, items)
@@ -67,13 +67,13 @@ const useFetchTracks = () =>
   ).data || []
 
 const useGetUser = () => {
-  const { data } = useQuery('user', () => getUser())
+  const { data } = useQuery(['user'], () => getUser())
   return data
 }
 
 const usePlaylistItems = (labels: any[] = []) => {
   const { data } = useQuery(
-    PLITEMS + labels.length,
+    [PLITEMS + labels.length],
     () =>
       getTrackForPlaylists(labels)
         .then((items: Record<string, any>) => {

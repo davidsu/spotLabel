@@ -1,22 +1,16 @@
-import { Stack, Avatar, Typography, IconButton } from '@mui/material'
+import { Stack, Typography, IconButton, Slider, Box } from '@mui/material'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { AudioFeaturesInfo } from '../../components/AudioFeatures'
-import {
-  apiWithCache,
-  currPlayerState,
-  getAlbum,
-  getTracksAudioFeatures,
-  syncDevtools,
-} from '../../state/atoms'
+import { apiWithCache, getAlbum } from '../../state/atoms'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import { skipNext, skipPrev } from '../../api/player'
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, BASE_URL } from '../../api/utils'
-import { useQuery, useQueryClient } from 'react-query'
-import { getTracks, getTracksSlim } from '../../api/tracks'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getTracksAudioFeatures, getTracksSlim } from '../../api/tracks'
 
 function InfoChip({ albumName, image, name }) {
   return (
@@ -71,40 +65,53 @@ function PlayingFooter() {
     </Stack>
   )
 }
-const useSyncDevTools = ({ album, tracks }) => {
-  const [syncDevtools_, setSync] = useRecoilState(syncDevtools)
-  useEffect(() => {
-    setSync({ album, tracks })
-  }, [album, tracks, setSync])
-  console.log({ syncDevtools_ })
-}
-
-type PlayingItem = {
-  id?: string
-  album?: any
-}
 
 const usePlayerState = () =>
   useQuery(
-    'playerState',
+    ['playerState'],
     () => apiFetch(`${BASE_URL}/me/player`).then(e => e.json()),
-    { refetchInterval: 1000 }
+    { refetchInterval: 2000 }
   ).data || {}
+
+const useAudioFeatures = (id: string) =>
+  useQuery([`audio-features-${id}`], () => getTracksAudioFeatures([id]), {
+    cacheTime: Infinity,
+  }).data || {}
 
 const emptyArr = []
 const useFetchTracks = () =>
   useQuery({
     queryKey: ['tracks'],
     queryFn: () => getTracksSlim(),
+    cacheTime: 1000 ** 2,
   }).data || emptyArr
 
 const empty = {}
+function AutoAdvanceSlider({ playerState, item }: any) {
+  const [progress_ms, setProgress_ms] = useState(0)
+  const queryClient = useQueryClient()
+  useMemo(() => setProgress_ms(playerState?.progress_ms || 0), [playerState])
+  const duration = playerState.duration_ms
+  useEffect(() => {
+    const interval = setTimeout(() => {
+      if (!item) return
+      if (progress_ms > duration) {
+        queryClient.invalidateQueries({ queryKey: ['playerState'] })
+      }
+      setProgress_ms(progress_ms + 100)
+    }, 100)
+    return () => clearTimeout(interval)
+  }, [progress_ms, setProgress_ms, duration])
+  return (
+    <Slider size="small" min={0} max={item.duration_ms} value={progress_ms} />
+  )
+}
 export function Playing() {
   const [localLiked, setLocalLiked] = useState([])
   const queryClient = useQueryClient()
   const playerState = usePlayerState()
   const item = useMemo(() => playerState.item || empty, [playerState.item?.id])
-  const tracks = useRecoilValue(getTracksAudioFeatures([item.id]))
+  const tracks = useAudioFeatures(item.id)
   const album = useRecoilValue(getAlbum(item?.album?.id))
   const likedList = useFetchTracks()
   const liked = useMemo(
@@ -129,6 +136,9 @@ export function Playing() {
             {g}
           </Typography>
         ))}
+      <Box width="30%">
+        <AutoAdvanceSlider {...{ playerState, item }} />
+      </Box>
       <IconButton
         onClick={() => {
           apiFetch(`${BASE_URL}/me/tracks`, {

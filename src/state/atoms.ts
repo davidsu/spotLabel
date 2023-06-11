@@ -8,11 +8,6 @@ export const currScreenState = atom({
   default: 'home', // default value (aka initial value)
 })
 
-export const currPlayerState = selector({
-  key: 'playerState',
-  get: () => apiFetch(`${BASE_URL}/me/player`).then(e => e.json()),
-})
-
 export const apiWithCache = selectorFamily({
   key: 'apiWithCache',
   get: (url: string) => () => fetchWithCache(url).then(e => e.json()),

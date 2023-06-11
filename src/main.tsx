@@ -1,12 +1,17 @@
-import { createTheme, responsiveFontSizes, ThemeOptions, ThemeProvider } from '@mui/material/styles'
-import RecoilizeDebugger from 'recoilize'
+import {
+  createTheme,
+  responsiveFontSizes,
+  ThemeOptions,
+  ThemeProvider,
+} from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import { refreshToken } from './tokenFlow'
 import { RecoilRoot } from 'recoil'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const queryClient = new QueryClient()
 
@@ -27,8 +32,9 @@ const render = () => {
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
       <RecoilRoot>
-        <RecoilizeDebugger />
         <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <App />
