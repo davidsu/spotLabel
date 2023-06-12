@@ -58,7 +58,7 @@ const usePlaylists = () =>
   ).data || []
 
 const useFetchTracks = () =>
-  useQuery(['tracks'], () =>
+  useQuery(['tracks_full'], () =>
     getTracks().then((items: any[]) => {
       //@ts-ignore
       setValue(TRACKS, items)
