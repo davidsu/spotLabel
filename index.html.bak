@@ -27,7 +27,7 @@
         }
       }(window.location))
     </script>
-    <script type="module" crossorigin src="/spotLabel/assets/index-1ddbf313.js"></script>
+    <script type="module" crossorigin src="/assets/index-1ddbf313.js"></script>
   </head>
   <body>
     <div id="root"></div>
