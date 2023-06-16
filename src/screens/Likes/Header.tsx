@@ -6,10 +6,17 @@ import { useTracks } from '../../selectors'
 import { apiFetch, BASE_URL } from '../../api/utils'
 import { home } from '../../tokenFlow'
 import { clearCache } from '../../cache'
+import { useQuery } from '@tanstack/react-query'
+import { getUser } from '../../api'
+
+const useGetUser = () => {
+  const { data } = useQuery(['user_'], () => getUser())
+  return data
+}
 
 const usePlayCurrentItems = () => {
   const tracks = useTracks()
-  const { user } = useContext(appContext)
+  const { user } = useGetUser()
   return async () => {
     const playlist = await apiFetch(`${BASE_URL}/users/${user.id}/playlists`, {
       method: 'POST',

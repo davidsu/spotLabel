@@ -1,11 +1,12 @@
-import { atom, selector, selectorFamily } from 'recoil'
+import { atom, selectorFamily } from 'recoil'
 import { apiFetchAlbum } from '../api/albums'
 import { getTracksAudioFeatures as apiFetchAudioFeatures } from '../api/tracks'
-import { apiFetch, BASE_URL, fetchWithCache } from '../api/utils'
+import { fetchWithCache } from '../api/utils'
+import { SCREENS } from '../consts'
 
 export const currScreenState = atom({
   key: 'textState', // unique ID (with respect to other atoms/selectors)
-  default: 'home', // default value (aka initial value)
+  default: SCREENS.home, // default value (aka initial value)
 })
 
 export const apiWithCache = selectorFamily({
